@@ -17,6 +17,7 @@ export interface MigrateRequest {
   targetLanguage: TargetLanguage;
   code: string;
   rules?: RuleToggle;
+  requestId?: string;
 }
 
 export type ValidationError = {

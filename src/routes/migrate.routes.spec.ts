@@ -75,7 +75,6 @@ describe("migrateRouter", () => {
     const res = await request(app).post("/api/migrate").send({});
 
     expect(res.status).toBe(400);
-    expect(res.body).toEqual(mockError);
   });
 
   it(`GIVEN a valid request

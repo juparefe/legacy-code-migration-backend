@@ -38,7 +38,7 @@ npm install
 ```
 npm start
 ```
-- Para saber que el servidor se inicio correctamente en la consola debe aparecer el mensaje "Servidor corriendo en el puerto 3001"
+- Para saber que el servidor se inicio correctamente en la consola debe aparecer el mensaje "[migration-backend] listening on port 3001"
 
 ### Ejecutar los endpoints:
 - Si se siguieron los pasos anteriores, la API se esta ejecutando en la direccion: ```http://localhost:3000 ```
