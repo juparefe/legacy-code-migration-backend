@@ -1,9 +1,11 @@
 import { MigrateRequest, MigrateResponse } from "../domain/types";
 import { getRulesFor, resolveEnabledRuleIds } from "../domain/rules/ruleCatalog";
+import { debugService, debugRules } from "../infrastructure/logger";
+
 
 export const migrateService = {
   migrate(req: MigrateRequest): MigrateResponse {
-
+    debugService("Starting migration");
     const rules = getRulesFor(req.sourceLanguage);
     const enabledIds = resolveEnabledRuleIds(rules, req.rules);
 
@@ -15,6 +17,7 @@ export const migrateService = {
     const warningsDetected = [];
 
     for (const rule of rules) {
+      debugRules("Applying rule %s", rule.id);
       if (!enabledIds.has(rule.id)) continue;
 
       const res = rule.run(current);
