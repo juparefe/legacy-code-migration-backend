@@ -1,9 +1,10 @@
 import type { Request, Response, NextFunction } from "express";
 import { AppError } from "./errors";
 import { debugError } from "./logger";
+import { MigrateRequest } from "../domain/types";
 
 export function errorHandler(err: unknown, req: Request, res: Response, _next: NextFunction) {
-  const requestId = (req as any).requestId;
+  const requestId = (req as unknown as MigrateRequest).requestId;
 
   if (err instanceof AppError) {
     debugError("request.error", {

@@ -1,10 +1,11 @@
 import type { Request, Response, NextFunction } from "express";
 import { randomUUID } from "crypto";
 import { debugHttp } from "./logger";
+import { MigrateRequest } from "../domain/types";
 
 export function requestContext(req: Request, res: Response, next: NextFunction) {
   const requestId = (req.header("x-request-id") || randomUUID()).toString();
-  (req as any).requestId = requestId;
+  (req as unknown as MigrateRequest).requestId = requestId;
 
   res.setHeader("x-request-id", requestId);
 

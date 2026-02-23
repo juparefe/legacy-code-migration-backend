@@ -3,12 +3,13 @@ import { migrateService } from "../application/migrate.service";
 import { parseMigrateRequest } from "../infrastructure/validation";
 import { debugHttp } from "../infrastructure/logger";
 import { BadRequestError } from "../infrastructure/errors";
+import { MigrateRequest } from "../domain/types";
 
 export const migrateRouter = Router();
 debugHttp("Incoming request");
 
 migrateRouter.post("/", (req, res, next) => {
-  const requestId = (req as any).requestId;
+  const requestId = (req as unknown as MigrateRequest).requestId;
   try {
     const parsed = parseMigrateRequest(req.body);
     if (!parsed.ok) {
