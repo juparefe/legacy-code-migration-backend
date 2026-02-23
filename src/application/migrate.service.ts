@@ -1,9 +1,8 @@
-import { MigrateRequest, MigrateResponse, RuleContext } from "../domain/types";
+import { MigrateRequest, MigrateResponse } from "../domain/types";
 import { getRulesFor, resolveEnabledRuleIds } from "../domain/rules/ruleCatalog";
 
 export const migrateService = {
   migrate(req: MigrateRequest): MigrateResponse {
-    const ctx: RuleContext = {};
 
     const rules = getRulesFor(req.sourceLanguage);
     const enabledIds = resolveEnabledRuleIds(rules, req.rules);
@@ -18,7 +17,7 @@ export const migrateService = {
     for (const rule of rules) {
       if (!enabledIds.has(rule.id)) continue;
 
-      const res = rule.run(current, ctx);
+      const res = rule.run(current);
       current = res.output;
 
       if (res.report.hits > 0) appliedRules.push(res.report);
@@ -48,8 +47,8 @@ export const migrateService = {
 
 function normalize(code: string): string {
   return code
-    .replace(/\\n/g, "\n")   // arregla escapes dobles
-    .replace(/\r\n/g, "\n")  // normaliza windows
-    .replace(/\t/g, "  ")    // tabs → espacios
+    .replace(/\\n/g, "\n")
+    .replace(/\r\n/g, "\n")
+    .replace(/\t/g, "  ")
     .trimEnd();
 }

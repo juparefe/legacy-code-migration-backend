@@ -29,20 +29,16 @@ export function resolveEnabledRuleIds(
 ): Set<RuleId> {
   const allIds = new Set(all.map(r => r.id));
 
-  // default: todas
   if (!toggle) return allIds;
 
-  // array: whitelist
   if (Array.isArray(toggle)) {
     return new Set(toggle.filter(id => allIds.has(id)));
   }
 
-  // object: toggles
   const enabled = new Set<RuleId>();
   for (const id of allIds) {
     const v = toggle[id];
     if (v === undefined) {
-      // si no viene, por defecto lo dejas ON (o OFF si prefieres)
       enabled.add(id);
     } else if (v === true) {
       enabled.add(id);

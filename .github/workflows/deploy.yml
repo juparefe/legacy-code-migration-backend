@@ -1,0 +1,51 @@
+name: deploy (backend)
+
+on:
+  push:
+    branches: ["main"]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    name: Package + Deploy Lambda
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Package lambda.zip (linux)
+        run: |
+          rm -f lambda.zip
+          zip -r lambda.zip dist node_modules package.json
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::730335229921:role/legacy_code_migration
+          aws-region: us-east-1
+
+      - name: Deploy to Lambda
+        run: |
+          aws lambda update-function-code \
+            --function-name legacy-code-migration \
+            --zip-file fileb://lambda.zip
+
+      - name: Wait until updated
+        run: |
+          aws lambda wait function-updated --function-name legacy-code-migration

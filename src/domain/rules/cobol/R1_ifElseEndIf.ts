@@ -24,7 +24,7 @@ export const R1_ifElseEndIf: Rule = {
       const original = lines[i];
       const lineNo = i + 1;
 
-      // IF <cond>
+      // IF
       const ifMatch = original.match(/^\s*IF\s+(.+?)\s*$/i);
       if (ifMatch) {
         hits++;
@@ -61,7 +61,6 @@ export const R1_ifElseEndIf: Rule = {
 
         hits++;
 
-        // cerrar bloque actual y abrir else
         indentLevel = Math.max(0, indentLevel - 1);
 
         const genClose = `${indent(indentLevel)}} else {`;
@@ -107,11 +106,9 @@ export const R1_ifElseEndIf: Rule = {
         continue;
       }
 
-      // Línea normal: solo la indento si estamos dentro de IF
       out.push(`${indent(indentLevel)}${original.trimEnd()}`);
     }
 
-    // Si quedaron IF abiertos
     if (stack.length > 0) {
       warnings.push({
         code: "W012",
@@ -151,16 +148,13 @@ function normalizeCobolCondition(
 ): string {
   let c = cond.trim();
 
-  // reemplazos básicos de operadores (orden importa)
   c = c.replace(/<>/g, "!==");
   c = c.replace(/\s=\s/g, " === ");
   c = c.replace(/\sAND\s/gi, " && ");
   c = c.replace(/\sOR\s/gi, " || ");
 
-  // mapea "palabras" COBOL a camel-ish simple: AMOUNT -> amount, WS-AMOUNT -> wsAmount
   c = c.replace(/\b[A-Z][A-Z0-9-]*\b/g, (tok) => toJsIdentifier(tok));
 
-  // Si quedaron tokens raros (ej: ( ) o comillas están ok) no advertimos; advertimos si hay "NOT" sin soporte
   if (/\bNOT\b/i.test(cond)) {
     warnings.push({
       code: "W013",
@@ -174,7 +168,6 @@ function normalizeCobolCondition(
 }
 
 function toJsIdentifier(cobolName: string): string {
-  // WS-AMOUNT -> wsAmount, AMOUNT -> amount
   const parts = cobolName.toLowerCase().split("-");
   return parts
     .map((p, idx) => (idx === 0 ? p : p.charAt(0).toUpperCase() + p.slice(1)))

@@ -26,7 +26,6 @@ export const R7_evaluate: Rule = {
       const block = stack[stack.length - 1];
       if (!block?.hasOpenCase) return;
 
-      // Insertamos break antes de un nuevo case/default o al cerrar el switch
       const gen = `  break;`;
       out.push(gen);
 
@@ -50,7 +49,7 @@ export const R7_evaluate: Rule = {
       const original = lines[i];
       const lineNo = i + 1;
 
-      // EVALUATE <expr>
+      // EVALUATE
       const evalMatch = original.match(/^\s*EVALUATE\s+(.+?)\s*$/i);
       if (evalMatch) {
         hits++;
@@ -74,17 +73,16 @@ export const R7_evaluate: Rule = {
         continue;
       }
 
-      // WHEN ...
+      // WHEN
       const whenMatch = original.match(/^\s*WHEN\s+(.+?)\s*$/i);
       if (whenMatch && stack.length > 0 && stack[stack.length - 1].type === "EVALUATE") {
         hits++;
 
-        // Cerramos case anterior con break
         pushBreakIfNeeded(lineNo);
 
         const raw = whenMatch[1].trim();
 
-        // Detectar WHEN complejo
+        // Detect complex WHEN
         if (/\bTHRU\b/i.test(raw) || /[<>=]/.test(raw) || /\bAND\b|\bOR\b/i.test(raw)) {
           warnings.push({
             code: "W044",
@@ -100,7 +98,6 @@ export const R7_evaluate: Rule = {
         if (/^OTHER$/i.test(raw)) {
           gen = `default:`;
         } else {
-          // caso simple (valor)
           const value = normalizeCobolValue(raw);
           gen = `case ${value}:`;
         }
@@ -127,7 +124,6 @@ export const R7_evaluate: Rule = {
 
         hits++;
 
-        // break final si había case abierto
         pushBreakIfNeeded(lineNo);
 
         stack.pop();
@@ -139,7 +135,6 @@ export const R7_evaluate: Rule = {
         continue;
       }
 
-      // Dentro de switch, indentamos el cuerpo de case
       if (stack.length > 0 && stack[stack.length - 1].type === "EVALUATE") {
         const trimmed = original.trimEnd();
         out.push(trimmed.length ? `  ${trimmed}` : trimmed);
@@ -173,18 +168,14 @@ function normalizeCobolExpr(expr: string): string {
 function normalizeCobolValue(v: string): string {
   const t = v.trim();
 
-  // num
   if (/^-?\d+(\.\d+)?$/.test(t)) return t;
 
-  // literal string
   if ((t.startsWith('"') && t.endsWith('"')) || (t.startsWith("'") && t.endsWith("'"))) {
     return t;
   }
 
-  // identificador
   if (/^[A-Z][A-Z0-9-]*$/i.test(t)) return toJsIdentifier(t);
 
-  // fallback
   return JSON.stringify(t);
 }
 
