@@ -10,7 +10,6 @@ export function requestContext(req: Request, res: Response, next: NextFunction) 
   res.setHeader("x-request-id", requestId);
 
   const start = Date.now();
-  debugHttp("request.start", { requestId, method: req.method, path: req.originalUrl });
 
   res.on("finish", () => {
     debugHttp("request.end", {
