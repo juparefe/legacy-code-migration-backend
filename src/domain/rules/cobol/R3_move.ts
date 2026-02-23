@@ -40,10 +40,8 @@ function toJsExpr(token: string, lineNo: number, warnings: Warning[]): string {
   if (/^ZERO$/i.test(t)) return "0";
   if (/^SPACES$/i.test(t)) return `""`;
 
-  // Si es literal numérico
   if (/^-?\d+(\.\d+)?$/.test(t)) return t;
 
-  // Identificador COBOL
   if (/^[A-Z][A-Z0-9-]*$/i.test(t)) return toJsIdentifier(t);
 
   warnings.push({

@@ -23,11 +23,6 @@ export const R6_perform: Rule = {
       const original = lines[i];
       const lineNo = i + 1;
 
-      // --- PERFORM VARYING i FROM a BY b UNTIL <cond>
-      // Ejemplo COBOL:
-      // PERFORM VARYING I FROM 1 BY 1 UNTIL I > 10
-      //   DISPLAY "X"
-      // END-PERFORM
       const varying = original.match(
         /^\s*PERFORM\s+VARYING\s+(\S+)\s+FROM\s+(\S+)\s+BY\s+(\S+)\s+UNTIL\s+(.+?)\s*$/i
       );
@@ -41,9 +36,6 @@ export const R6_perform: Rule = {
         const untilJs = normalizeCobolCondition(untilRaw);
 
         // Heurística:
-        // COBOL "UNTIL I > 10" implica repetir hasta que sea true,
-        // entonces el loop corre mientras !(I > 10).
-        // En for usamos condición "!(until)" como guard.
         const gen = `for (let ${varName} = ${from}; !(${untilJs}); ${varName} += ${by}) {`;
 
         out.push(gen);
@@ -62,7 +54,7 @@ export const R6_perform: Rule = {
         continue;
       }
 
-      // --- PERFORM UNTIL <cond>
+      // --- PERFORM UNTIL
       const until = original.match(/^\s*PERFORM\s+UNTIL\s+(.+?)\s*$/i);
       if (until) {
         hits++;
@@ -142,7 +134,6 @@ function normalizeValue(token: string): string {
   if (/^-?\d+(\.\d+)?$/.test(t)) return t;
   if (/^ZERO$/i.test(t)) return "0";
   if (/^SPACES$/i.test(t)) return `""`;
-  // Identificadores COBOL
   if (/^[A-Z][A-Z0-9-]*$/i.test(t)) return toJsIdentifier(t);
   return t;
 }

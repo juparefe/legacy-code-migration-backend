@@ -1,7 +1,7 @@
-import { Rule, RuleEvidence, Warning } from "../../types";
+import { Rule, RuleEvidence, RuleId, Warning } from "../../types";
 
 export const R8_comments: Rule = {
-  id: "R8" as any, // agrega R8 en RuleId
+  id: "R8" as RuleId,
   name: "COBOL comments (*, *>) -> //",
   appliesTo: "COBOL",
 
@@ -15,7 +15,7 @@ export const R8_comments: Rule = {
     const out = lines.map((line, idx) => {
       const lineNo = idx + 1;
 
-      // Línea completa como comentario: "*" al inicio (típico COBOL)
+      // Full line as a comment: "*" at the beginning (typical COBOL)
       if (/^\s*\*\s?.*$/.test(line)) {
         hits++;
         const content = line.replace(/^\s*\*\s?/, "");
@@ -25,8 +25,8 @@ export const R8_comments: Rule = {
         return gen;
       }
 
-      // Comentario inline con "*>" (COBOL)
-      const inline = line.match(/^(.*?)(\*\>)(.*)$/);
+      // Inline comment with "*>" (COBOL)
+      const inline = line.match(/^(.*?)(\*>)(.*)$/);
       if (inline) {
         hits++;
         const before = inline[1].trimEnd();
@@ -42,7 +42,7 @@ export const R8_comments: Rule = {
 
     return {
       output: out.join("\n"),
-      report: { id: "R8" as any, name: this.name, hits, evidence },
+      report: { id: "R8" as RuleId, name: this.name, hits, evidence },
       warnings
     };
   }

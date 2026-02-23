@@ -19,7 +19,6 @@ export const R2_displayLiteral: Rule = {
         return gen;
       }
 
-      // warning si es DISPLAY sin literal
       if (/^\s*DISPLAY\s+/i.test(line)) {
         warnings.push({
           code: "W001",
